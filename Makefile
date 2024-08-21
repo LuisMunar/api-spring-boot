@@ -1,5 +1,8 @@
 MVNW=./mvnw
 
+clean:
+	$(MVNW) clean
+
 test:
 	$(MVNW) test
 
