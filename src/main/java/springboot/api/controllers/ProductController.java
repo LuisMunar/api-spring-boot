@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import springboot.api.controllers.dtos.ProductDto;
+import springboot.api.controllers.dtos.ProductBodyParamsDto;
 import springboot.api.entities.Product;
 import springboot.api.exceptions.RequestBodyException;
 import springboot.api.exceptions.ResourceAlreadyExistsException;
@@ -55,7 +55,7 @@ public class ProductController {
   }
 
   @PostMapping()
-  public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) {
+  public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody ProductBodyParamsDto productDto, BindingResult bindingResult) {
     try {
       if (bindingResult.hasErrors()) {
         throw new RequestBodyException(bindingResult.getAllErrors().get(0).getDefaultMessage());

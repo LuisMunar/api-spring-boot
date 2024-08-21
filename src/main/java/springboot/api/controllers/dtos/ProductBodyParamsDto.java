@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import springboot.api.entities.Product;
 
-public class ProductDto {
+public class ProductBodyParamsDto {
 
   @NotBlank(message = "Name is required")
   private String name;
@@ -17,9 +17,9 @@ public class ProductDto {
   @Min(value = 1, message = "Price must be greater than 1")
   private Integer price;
 
-  public ProductDto() {}
+  public ProductBodyParamsDto() {}
 
-  public ProductDto(String name, String description, Integer price) {
+  public ProductBodyParamsDto(String name, String description, Integer price) {
     this.name = name;
     this.description = description;
     this.price = price;

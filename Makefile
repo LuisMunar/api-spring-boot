@@ -11,3 +11,6 @@ test-coverage:
 
 test-coverage-clean:
 	$(MVNW) clean test jacoco:report
+
+test-single:
+	$(MVNW) test -Dtest=$(TEST-CLASS)
