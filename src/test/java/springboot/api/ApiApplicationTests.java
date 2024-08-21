@@ -1,18 +1,24 @@
 package springboot.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mockStatic;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class ApiApplicationTests {
 
 	@Test
-	void contextLoads() {}
+	void contextLoads() {
+
+	}
 
 	@Test
-	void testTwoEqualsTwo() {
-		assertEquals(2, 2, "2 should be equal to 2");
+	void testMainMethod() {
+		try (var mockedSpringApplication = mockStatic(SpringApplication.class)) {
+			ApiApplication.main(new String[] {});
+			mockedSpringApplication.verify(() -> SpringApplication.run(ApiApplication.class, new String[] {}));
+		}
 	}
 }
