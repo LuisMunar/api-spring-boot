@@ -11,6 +11,8 @@
 - Install the next plugins in the POM for the unit test coverage
   - `jacoco-maven-plugin`
 
+- NOTE: Consider the posibility that to execute unit test with jacoc, mockito or junit, we need change th version java in pom to 17 `<java.version>17</java.version>`
+
 ## Scripts
 - To execute all unit test
   - `make test`
