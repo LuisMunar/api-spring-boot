@@ -4,6 +4,7 @@
 - Install the next dependencies in the POM fot the unit test
   - `spring-boot-starter-test`
   - `junit-jupiter`
+  - `mockito-inline`
   - `mockito-core`
   - `mockito-junit-jupiter`
 
@@ -15,7 +16,7 @@
   - `make test`
 
 - To execute a single test
-  - `make test TEST-CLASS=<TestClassName>`
+  - `make test-single TEST-CLASS=<TestClassName>`
 
 - To execute unit test with coverage
   - `make test-coverage`

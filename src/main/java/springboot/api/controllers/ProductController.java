@@ -73,12 +73,13 @@ public class ProductController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @Valid @RequestBody Product product, BindingResult bindingResult) {
+  public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @Valid @RequestBody ProductBodyParamsDto productDto, BindingResult bindingResult) {
     try {
       if (bindingResult.hasErrors()) {
         throw new RequestBodyException(bindingResult.getAllErrors().get(0).getDefaultMessage());
       }
 
+      Product product = productDto.toEntity();
       Product productUpdated = productService.update(id, product);
       return ResponseUtil.response(HttpStatus.OK.value(), "Product updated", productUpdated);
     } catch (RequestBodyException e) {
