@@ -4,6 +4,8 @@
 - Install the next dependencies in the POM fot the unit test
   - `spring-boot-starter-test`
   - `junit-jupiter`
+  - `mockito-core`
+  - `mockito-junit-jupiter`
 
 - Install the next plugins in the POM for the unit test coverage
   - `jacoco-maven-plugin`
