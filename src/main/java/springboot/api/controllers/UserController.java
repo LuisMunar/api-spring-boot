@@ -30,7 +30,8 @@ public class UserController {
   @Autowired
   private UserService userService;
 
-  UserBodyResponseDto userBodyReponseDto = new UserBodyResponseDto();
+  @Autowired
+  UserBodyResponseDto userBodyReponseDto;
 
   @GetMapping
   public ResponseEntity<Map<String, Object>> getAll() {

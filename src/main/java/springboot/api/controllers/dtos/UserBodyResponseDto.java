@@ -1,7 +1,10 @@
 package springboot.api.controllers.dtos;
 
+import org.springframework.stereotype.Component;
+
 import springboot.api.entities.User;
 
+@Component
 public class UserBodyResponseDto {
   private Long id;
   private String username;
