@@ -55,13 +55,13 @@ public class ProductController {
   }
 
   @PostMapping()
-  public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody ProductBodyParamsDto productDto, BindingResult bindingResult) {
+  public ResponseEntity<Map<String, Object>> create(@Valid @RequestBody ProductBodyParamsDto productBodyParamsDto, BindingResult bindingResult) {
     try {
       if (bindingResult.hasErrors()) {
         throw new RequestBodyException(bindingResult.getAllErrors().get(0).getDefaultMessage());
       }
 
-      Product productCreated = productService.save(productDto.toEntity());
+      Product productCreated = productService.save(productBodyParamsDto.toEntity());
       return ResponseUtil.response(HttpStatus.CREATED.value(), "Product created", productCreated);
     } catch (RequestBodyException e) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST.value(), e.getMessage());
@@ -73,13 +73,13 @@ public class ProductController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @Valid @RequestBody ProductBodyParamsDto productDto, BindingResult bindingResult) {
+  public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @Valid @RequestBody ProductBodyParamsDto productBodyParamsDto, BindingResult bindingResult) {
     try {
       if (bindingResult.hasErrors()) {
         throw new RequestBodyException(bindingResult.getAllErrors().get(0).getDefaultMessage());
       }
 
-      Product product = productDto.toEntity();
+      Product product = productBodyParamsDto.toEntity();
       Product productUpdated = productService.update(id, product);
       return ResponseUtil.response(HttpStatus.OK.value(), "Product updated", productUpdated);
     } catch (RequestBodyException e) {

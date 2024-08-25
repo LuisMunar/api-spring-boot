@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -33,6 +34,14 @@ public class User {
     uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role_id"})
   )
   private List<Role> roles;
+
+  @Column(nullable = false)
+  private Boolean enabled;
+
+  @PrePersist
+  public void prePersist() {
+    enabled = true;
+  }
 
   public User() {}
 
@@ -72,5 +81,13 @@ public class User {
 
   public void setRoles(List<Role> roles) {
     this.roles = roles;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 }
