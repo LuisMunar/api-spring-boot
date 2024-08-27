@@ -3,6 +3,7 @@ package springboot.api.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,12 +17,13 @@ import springboot.api.repositories.UserRepository;
 
 @Service
 public class AuthService implements UserDetailsService {
+  @Autowired
   private UserRepository userRepository;
 
   @Transactional(readOnly = true)
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = userRepository.findByUsername(username).orElse(null);
+    User user = this.userRepository.findByUsername(username).orElse(null);
 
     if (user == null) {
       throw new UsernameNotFoundException("User not found");
