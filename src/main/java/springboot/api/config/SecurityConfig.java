@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import springboot.api.services.JWTAuthenticationService;
+import springboot.api.services.JWTValidationService;
 
 @Configuration
 public class SecurityConfig {
@@ -35,10 +36,13 @@ public class SecurityConfig {
       (auth) -> auth
         .requestMatchers(HttpMethod.POST, "/users")
         .permitAll()
+        .requestMatchers(HttpMethod.GET, "/products")
+        .permitAll()
         .anyRequest()
         .authenticated()
     )
       .addFilter(new JWTAuthenticationService(authenticationManager()))
+      .addFilter(new JWTValidationService(authenticationManager()))
       .csrf(config -> config.disable())
       .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .build();

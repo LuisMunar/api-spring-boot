@@ -66,7 +66,7 @@ public class JWTAuthenticationService extends UsernamePasswordAuthenticationFilt
     Claims claims = Jwts
       .claims()
       .add("username", username)
-      .add("roles", roles)
+      .add("roles", new ObjectMapper().writeValueAsString(roles))
       .build();
 
     String token = Jwts.builder()
