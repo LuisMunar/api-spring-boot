@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import springboot.api.repositories.SecretManagerRepository;
 import springboot.api.services.JWTAuthenticationService;
 import springboot.api.services.JWTValidationService;
 
@@ -29,6 +30,9 @@ import java.util.Arrays;
 public class SecurityConfig {
   @Autowired
   private AuthenticationConfiguration authenticationConfiguration;
+
+  @Autowired
+  private SecretManagerRepository secretManagerRepository;
 
   @Bean
   AuthenticationManager authenticationManager() throws Exception {
@@ -50,7 +54,7 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.GET, "/products").permitAll()
         .anyRequest().authenticated()
     )
-      .addFilter(new JWTAuthenticationService(authenticationManager()))
+      .addFilter(new JWTAuthenticationService(authenticationManager(), secretManagerRepository))
       .addFilter(new JWTValidationService(authenticationManager()))
       .csrf(config -> config.disable())
       .cors(cors -> cors.configurationSource(corsConfigurationSource()))

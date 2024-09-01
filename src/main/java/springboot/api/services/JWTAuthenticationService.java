@@ -1,10 +1,14 @@
 package springboot.api.services;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,13 +29,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import springboot.api.constants.TokenConstants;
+import springboot.api.entities.SecretManager;
 import springboot.api.entities.User;
+import springboot.api.repositories.SecretManagerRepository;
 
 public class JWTAuthenticationService extends UsernamePasswordAuthenticationFilter {
   private AuthenticationManager authenticationManager;
+  private SecretManagerRepository secretManagerRepository;
 
-  public JWTAuthenticationService(AuthenticationManager authenticationManager) {
+  public JWTAuthenticationService(AuthenticationManager authenticationManager, SecretManagerRepository secretManagerRepository) {
     this.authenticationManager = authenticationManager;
+    this.secretManagerRepository = secretManagerRepository;
   }
 
   @Override
@@ -68,24 +76,38 @@ public class JWTAuthenticationService extends UsernamePasswordAuthenticationFilt
       .add("username", username)
       .add("roles", new ObjectMapper().writeValueAsString(roles))
       .build();
+    // --------------------------------------------------------------------------------------------------
+    SecretKey secretKey = TokenConstants.SECRET_KEY;
+    System.out.println("SECRET_KEY => " + secretKey);
 
+    String encodeSecretKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+    System.out.println("ENCODE_SECRET_KEY => " + encodeSecretKey);
+
+    byte[] decodeBase64 = Base64.getDecoder().decode(encodeSecretKey);
+    SecretKey decodeSecretKey = new SecretKeySpec(decodeBase64, 0, decodeBase64.length, "HmacSHA256");
+    System.out.println("DECODE_SECRET_KEY => " + decodeSecretKey);
+    // --------------------------------------------------------------------------------------------------
     String token = Jwts.builder()
       .subject(username)
       .claims(claims)
       .expiration(new Date(System.currentTimeMillis() + TokenConstants.EXPIRATION_TIME))
       .issuedAt(new Date())
-      .signWith(TokenConstants.SECRET_KEY)
+      .signWith(secretKey)
       .compact();
-
+    // --------------------------------------------------------------------------------------------------
+    SecretManager secretManager = new SecretManager();
+    secretManager.setToken(token);
+    secretManager.setSecretKey(encodeSecretKey);
+    secretManager.setUserId(1L);
+    secretManagerRepository.save(secretManager);
+    // --------------------------------------------------------------------------------------------------
     response.addHeader(TokenConstants.HEADER_AUTHORIZATION, TokenConstants.PREFIX_TOKEN + token);
     Map<String, String> body = new HashMap<>();
     body.put("token", token);
-    body.put("username", username);
-    body.put("message", "User authenticated");
 
     response.getWriter().write(new ObjectMapper().writeValueAsString(body));
     response.setContentType(TokenConstants.CONTENT_TYPE);
-    response.setStatus(HttpStatus.OK.value());
+    response.setStatus(HttpStatus.CREATED.value());
   }
 
   @Override
