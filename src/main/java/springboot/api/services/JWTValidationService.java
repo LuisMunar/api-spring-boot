@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.crypto.SecretKey;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,11 +23,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import springboot.api.constants.TokenConstants;
+import springboot.api.entities.SecretManager;
+import springboot.api.repositories.SecretManagerRepository;
+import springboot.api.util.SecretKeyUtil;
 import springboot.api.util.SimpleGrantedAuthorityJsonCreator;
 
 public class JWTValidationService extends BasicAuthenticationFilter {
-  public JWTValidationService(AuthenticationManager authenticationManager) {
+  SecretManagerRepository secretManagerRepository;
+
+  public JWTValidationService(
+    AuthenticationManager authenticationManager,
+    SecretManagerRepository secretManagerRepository
+  ) {
     super(authenticationManager);
+    this.secretManagerRepository = secretManagerRepository;
   }
 
   @Override
@@ -41,14 +51,17 @@ public class JWTValidationService extends BasicAuthenticationFilter {
 
       String token = headerToken.replace(TokenConstants.PREFIX_TOKEN, "");
 
-      Claims claims = Jwts.parser().verifyWith(TokenConstants.SECRET_KEY).build().parseSignedClaims(token).getPayload();
-      System.out.println("CLAIMS => " + claims);
-      String usernameOne = claims.getSubject();
-      System.out.println("USERNAME_ONE => " + usernameOne);
-      String usernameTwo = claims.get("username", String.class);
-      System.out.println("USERNAME_TWO => " + usernameTwo);
+      SecretManager secretManager = secretManagerRepository.findById(token).orElse(null);
+      if (secretManager == null || !secretManager.getValid()) {
+        throw new Exception("Invalid session");
+      }
+
+      String secretKeyEncode = secretManager.getSecretKey();
+      SecretKey secretKey = SecretKeyUtil.decode(secretKeyEncode);
+
+      Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+      String username = claims.getSubject();
       Object rolesClaims = claims.get("roles");
-      System.out.println("ROLES_CLAIMS => " + rolesClaims);
 
       Collection<? extends GrantedAuthority> authorities = Arrays.asList(
         new ObjectMapper()
@@ -56,7 +69,7 @@ public class JWTValidationService extends BasicAuthenticationFilter {
         .readValue(rolesClaims.toString().getBytes(), SimpleGrantedAuthority[].class)
       );
 
-      UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(usernameOne, null, authorities);
+      UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
       SecurityContextHolder.getContext().setAuthentication(authenticationToken);
       chain.doFilter(request, response);
     } catch (Exception e) {

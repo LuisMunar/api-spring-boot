@@ -59,7 +59,7 @@ public class SecurityConfig {
         .anyRequest().authenticated()
     )
       .addFilter(new JWTAuthenticationService(authenticationManager(), userRepository, secretManagerRepository))
-      .addFilter(new JWTValidationService(authenticationManager()))
+      .addFilter(new JWTValidationService(authenticationManager(), secretManagerRepository))
       .csrf(config -> config.disable())
       .cors(cors -> cors.configurationSource(corsConfigurationSource()))
       .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

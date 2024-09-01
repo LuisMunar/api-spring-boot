@@ -18,10 +18,13 @@ public class SecretManager {
   @Column(nullable = false)
   Long userId;
 
-  public SecretManager(String token, String secretKey, Long userId) {
+  Boolean valid;
+
+  public SecretManager(String token, String secretKey, Long userId, Boolean valid) {
     this.token = token;
     this.secretKey = secretKey;
     this.userId = userId;
+    this.valid = valid;
   }
 
   public SecretManager() {}
@@ -48,5 +51,13 @@ public class SecretManager {
 
   public void setUserId(Long userId) {
     this.userId = userId;
+  }
+
+  public Boolean getValid() {
+    return valid;
+  }
+
+  public void setValid(Boolean valid) {
+    this.valid = valid;
   }
 }

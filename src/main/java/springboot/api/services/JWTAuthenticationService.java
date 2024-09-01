@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
@@ -76,6 +77,13 @@ public class JWTAuthenticationService extends UsernamePasswordAuthenticationFilt
     org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authResult.getPrincipal();
     String username = user.getUsername();
 
+    User userData = userRepository.findByUsername(username).orElse(null);
+    if (userData == null) {
+      throw new RuntimeException("User not exists");
+    }
+
+    Long userId = userData.getId();
+
     Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
     Claims claims = Jwts
       .claims()
@@ -93,13 +101,19 @@ public class JWTAuthenticationService extends UsernamePasswordAuthenticationFilt
       .signWith(secretKey)
       .compact();
 
+    List<SecretManager> previousSecretManager = secretManagerRepository.findByUserIdAndValidTrue(userId);
+    for (SecretManager secretManagerItem : previousSecretManager) {
+      secretManagerItem.setValid(false);
+      secretManagerRepository.save(secretManagerItem);
+    }
+
     String encodeSecretKey = SecretKeyUtil.encode(secretKey);
-    Long userId = userRepository.findByUsername(username).get().getId();
-    
+
     SecretManager secretManager = new SecretManager();
     secretManager.setToken(token);
     secretManager.setSecretKey(encodeSecretKey);
     secretManager.setUserId(userId);
+    secretManager.setValid(true);
     secretManagerRepository.save(secretManager);
 
     response.addHeader(TokenConstants.HEADER_AUTHORIZATION, TokenConstants.PREFIX_TOKEN + token);
